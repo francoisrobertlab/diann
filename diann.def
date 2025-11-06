@@ -1,0 +1,75 @@
+Bootstrap: docker
+From: python:3.12.12-bookworm
+
+%arguments
+  version=2.0
+  tag=2.0
+
+%environment
+  export DEBIAN_FRONTEND=noninteractive
+  export PATH=/opt/diann:$PATH
+  export LANG=en_US.UTF-8
+  export LANGUAGE=en_US:en
+  export LC_ALL=en_US.UTF-8
+
+%post
+  export version={{ version }}
+  export tag={{ tag }}
+  echo "Version argument is $version and tag argument is $tag"
+# Update package lists
+  apt update \
+  && apt upgrade -y \
+  && apt install locales -y \
+  && rm -r /var/lib/apt/lists/*
+# Configure locale to avoid runtime errors
+  sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
+  && sed -i -e 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen \
+  && dpkg-reconfigure --frontend=noninteractive locales
+# Install required packages
+  apt update \
+  && apt install -y libgomp1 build-essential wget unzip
+# Install dotnet.
+  wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
+  && dpkg -i packages-microsoft-prod.deb \
+  && rm packages-microsoft-prod.deb
+  apt update \
+  && apt install -y dotnet-sdk-8.0 \
+  && rm -r /var/lib/apt/lists/*
+# Install python packages
+  pip install --upgrade pip
+  pip install polars numpy matplotlib
+# Download DIA-NN
+  cd /opt \
+  && wget "https://github.com/vdemichev/DiaNN/releases/download/${tag}/DIA-NN-${version}-Academia-Linux.zip" \
+  -O diann.zip \
+  && unzip diann.zip \
+  && rm diann.zip \
+  && mv "diann-${version}" diann \
+  && chmod -R 775 diann
+
+%runscript
+  echo "Running diann with command: diann-linux $*"
+  exec diann-linux "$@"
+
+%labels
+  Author Christian Poitras, IRCM based on official Docker container from DIA-NN and @rolivella comment on GitHub
+  Label {{ version }}
+  Website https://github.com/vdemichev/DiaNN
+
+%help
+  Runs diann-linux with all parameters specified.
+  The command 'diann-linux' should not be a parameter unless 'apptainer exec' is used.
+
+%apprun stats
+  echo "Running diann-stats.py with command: python opt/diann/diann-stats.py $*"
+  exec python /opt/diann/diann-stats.py "$@"
+ 
+%applabels stats
+  App diann-stats.py
+  Author Christian Poitras, IRCM based on official Docker container from DIA-NN and @rolivella comment on GitHub
+  Label {{ version }}
+  Website https://github.com/vdemichev/DiaNN
+
+%apphelp stats
+  Runs diann-stats.py with all parameters specified.
+  The commands 'python' and 'diann-stats.py' should not be parameters unless 'apptainer exec' is used.
