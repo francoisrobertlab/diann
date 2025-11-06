@@ -78,9 +78,6 @@ threads=48
 > [!IMPORTANT]
 > Replace `$parameters` with the actual parameters to use.
 
-> [!TIP]
-> If you have access to multiple projects, you will need to specify the account for `sbatch` using parameter `--account=def-robertf`.
-
 ```shell
-sbatch --cpus-per-task=$threads --mem=64G diann.sh --threads $threads $parameters
+sbatch --account=def-robertf --cpus-per-task=$threads --mem=64G diann.sh --threads $threads $parameters
 ```
