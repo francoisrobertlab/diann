@@ -27,15 +27,12 @@ fi
 workdir="${SLURM_TMPDIR:-$PWD}"
 
 args+=("$@")
-threads_args=()
 
 if [[ -n "$SLURM_TMPDIR" ]]
 then
   echo "Coping files from $PWD to $SLURM_TMPDIR for faster access."
   rsync -rvt --exclude="*.out" "$PWD"/* "$SLURM_TMPDIR"
   echo
-
-  threads_args=("--threads" "$SLURM_CPUS_PER_TASK")
 
   copy_temp_to_output() {
     save_exit=$?
@@ -57,5 +54,4 @@ apptainer_params+=("${bind_args[@]}")
 apptainer run \
     "${apptainer_params[@]}" \
     "${workdir}/${container}" \
-    "${args[@]}" \
-    "${threads_args[@]}"
+    "${args[@]}"

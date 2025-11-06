@@ -71,15 +71,16 @@ You should choose the right amount of CPUs and memory (RAM) to use.
 
 A reasonable amount of CPUs is 24 for 3 RAW files or less and 48 for more than 3 RAW files. For memory, you can try with 64GB and adjust if the task fails due to an *out of memory* exception.
 
-> [!IMPORTANT]
-> Replace `$parameters` with the actual parameters to use.
+```shell
+threads=48
+```
 
 > [!IMPORTANT]
-> Do not use `--threads` parameter when using `sbatch` as `diann.sh` will automatically append the right value for `--threads`
+> Replace `$parameters` with the actual parameters to use.
 
 > [!TIP]
 > If you have access to multiple projects, you will need to specify the account for `sbatch` using parameter `--account=def-robertf`.
 
 ```shell
-sbatch --cpus-per-task=48 --mem=64G diann.sh $parameters
+sbatch --cpus-per-task=$threads --mem=64G diann.sh --threads $threads $parameters
 ```
