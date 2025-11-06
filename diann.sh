@@ -47,7 +47,7 @@ then
     rsync -rvt "$SLURM_TMPDIR"/* "$PWD"
     exit "$save_exit"
   }
-  trap 'copy_temp_to_output; exit' ERR EXIT
+  trap 'copy_temp_to_output; exit' ERR EXIT SIGINT
 fi
 
 apptainer_params=("--containall" "--workdir" "$workdir" "--pwd" "/data"
