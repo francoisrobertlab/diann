@@ -79,5 +79,5 @@ threads=48
 > Replace `$parameters` with the actual parameters to use.
 
 ```shell
-sbatch --account=def-robertf --cpus-per-task=$threads --mem=64G diann.sh --threads $threads $parameters
+sbatch --cpus-per-task=$threads --mem=64G diann.sh --threads $threads $parameters
 ```
